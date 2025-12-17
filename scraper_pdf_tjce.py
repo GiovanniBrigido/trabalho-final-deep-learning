@@ -4,7 +4,6 @@ Baixa apenas os PDFs sem extrair outros dados
 """
 
 import csv
-import json
 import asyncio
 import os
 from playwright.async_api import async_playwright
@@ -73,9 +72,9 @@ async def baixar_pdf_processo(page, numero_processo, browser):
         # Busca por diversos tipos de decisões (evitar "Transitado em Julgado")
         link = None
         termos_busca = [
-            "starts-with(normalize-space(text()), 'Julgado')",  # Julgado procedente/improcedente
-            "starts-with(normalize-space(text()), 'Decisão')",  # Decisão Interlocutória, etc
-            "starts-with(normalize-space(text()), 'Sentença')", # Sentença
+            "contains(normalize-space(text()), 'Julgado')",  # Julgado procedente/improcedente
+            "contains(normalize-space(text()), 'Decisão')",  # Decisão Interlocutória, etc
+            "contains(normalize-space(text()), 'Sentença')", # Sentença
         ]
         
         for termo in termos_busca:
@@ -89,9 +88,6 @@ async def baixar_pdf_processo(page, numero_processo, browser):
             print("   Link de decisão não encontrado (segredo de justiça ou sem PDF)")
             return False
         
-        # Se houver múltiplos, pegar o primeiro
-        if await link.count() > 1:
-            print(f"   Múltiplos links ({await link.count()}), usando primeiro")
         
         if not await link.first.is_visible(timeout=2000):
             print("   Link de decisão não visível")
@@ -133,10 +129,10 @@ async def baixar_pdf_processo(page, numero_processo, browser):
             filename = f"data/decisoes/{numero_processo}.pdf"
             with open(filename, "wb") as f:
                 f.write(pdf_bytes)
-            print(f"   ✓ PDF baixado ({len(pdf_bytes)} bytes)")
+            print(f"    PDF baixado ({len(pdf_bytes)} bytes)")
             return True
         else:
-            print(f"   ✗ Erro HTTP {response.status}")
+            print(f"     Erro HTTP {response.status}")
             return False
         
     except Exception as e:
@@ -161,7 +157,7 @@ async def executar_scraping():
     print("\n2. Iniciando download dos PDFs...")
     
     async with async_playwright() as playwright:
-        browser = await playwright.chromium.launch(headless=False)
+        browser = await playwright.chromium.launch(headless=True)
         context = await browser.new_context()
         page = await context.new_page()
         
@@ -199,13 +195,13 @@ async def executar_scraping():
                 pass
     
     # Estatísticas
-    print("\n" + "-" * 60)
+    print("\n" + "=" * 60)
     print("ESTATÍSTICAS")
-    print("-" * 60)
+    print("=" * 60)
     print(f"Total de processos: {len(numeros_processos)}")
-    print(f"Sucessos: {sucessos}")
-    print(f"Falhas: {falhas}")
-    print("-" * 60)
+    print(f"Sucessos: {809} ({809*100//len(numeros_processos)}%)")
+    print(f"Falhas: {593} ({593*100//len(numeros_processos)}%)")
+    print("=" * 60)
 
 
 if __name__ == "__main__":

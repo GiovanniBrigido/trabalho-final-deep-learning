@@ -186,7 +186,7 @@ def extrair_info_pdf(caminho_pdf: str) -> Dict:
     }
 
     try:
-        # --- 2.1. Extrair texto bruto de todas as páginas ---
+        # Extrair texto bruto de todas as páginas do PDF
         all_text_pages = []
         cleaned_lines = []
 
@@ -212,13 +212,13 @@ def extrair_info_pdf(caminho_pdf: str) -> Dict:
                         logger.warning(f"  Erro ao processar página {page_idx}: {str(page_error)[:50]}")
                         continue
         except Exception as pdf_error:
-            # Se não conseguir abrir o PDF, marca como erro
+            # Registrar falha se não conseguir abrir o PDF
             resultado["erro"] = f"Erro ao abrir PDF: {str(pdf_error)[:50]}"
             return resultado
 
         full_raw_text = "\n".join(all_text_pages)
 
-        # --- 2.2. Limpar e juntar linhas em parágrafos ---
+        # Limpar cabeçalhos e rodapés, consolidar linhas em parágrafos
         merged = merge_lines(cleaned_lines)
         normalized_paragraphs = normalize_paragraphs(merged)
         texto_completo_limpo = "\n\n".join(normalized_paragraphs).strip()
@@ -277,9 +277,9 @@ def processar_pasta_decisoes(
         
         if info["sucesso"]:
             resultados.append(info)
-            logger.info(f"  ✓ Texto extraído com sucesso")
+            logger.info(f"Texto extraído com sucesso")
         else:
-            logger.warning(f"  ✗ Erro: {info['erro']}")
+            logger.warning(f"Erro ao processar: {info['erro']}")
             erros.append({
                 "arquivo": arquivo_pdf.name,
                 "erro": info["erro"]
@@ -289,21 +289,20 @@ def processar_pasta_decisoes(
     try:
         df = pd.DataFrame(resultados)
         
-        # Reordenar colunas conforme solicitado
+        # Reordenar colunas para facilitar análise
         df = df[["arquivo", "numeroProcesso", "texto_completo_limpo"]]
         
         # Renomear colunas para maior clareza
         df = df.rename(columns={"numeroProcesso": "numero_processo", "texto_completo_limpo": "decisao_completa"})
         
-        # Salvar CSV com delimitador ";" para evitar problemas com vírgulas no texto
+        # Usar ponto-e-vírgula como delimitador por compatibilidade com conteúdo
         df.to_csv(arquivo_csv_saida, index=False, encoding="utf-8", sep=";", quoting=1)
         
-        logger.info(f"✓ CSV consolidado salvo: {arquivo_csv_saida}")
-        logger.info(f"  Total de registros: {len(df)}")
-        logger.info(f"  Delimitador: ';' (ponto-e-vírgula)")
+        logger.info(f"Arquivo salvo com sucesso: {arquivo_csv_saida}")
+        logger.info(f"Total de registros processados: {len(df)}")
         
     except Exception as e:
-        logger.error(f"✗ Erro ao salvar CSV consolidado: {str(e)}")
+        logger.error(f"Erro ao salvar arquivo CSV: {str(e)}")
     
     return {
         "total_arquivos": len(arquivos_pdf),
@@ -317,8 +316,8 @@ def processar_pasta_decisoes(
 
 
 if __name__ == "__main__":
-    # Usar pasta local relativa ao script
-    pasta = "data/decisoes"
+    # Definir pasta de origem com PDFs
+    pasta = "data/notebook1/decisoes"
     
     logger.info("Iniciando extração de decisões TJCE...")
     stats = processar_pasta_decisoes(pasta)

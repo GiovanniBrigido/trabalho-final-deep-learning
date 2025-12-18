@@ -10,7 +10,7 @@ from playwright.async_api import async_playwright
 from urllib.parse import unquote, urlparse, parse_qs
 
 
-def ler_numeros_processos(arquivo_csv="data/numeros_processos.csv"):
+def ler_numeros_processos(arquivo_csv="data/notebook1/numeros_processos.csv"):
     """Lê os números dos processos do arquivo CSV"""
     numeros = []
     with open(arquivo_csv, "r", encoding="utf-8") as f:
@@ -32,7 +32,7 @@ async def baixar_pdf_processo(page, numero_processo, browser):
     Retorna: bool indicando sucesso do download
     """
     try:
-        # Navegar para a página inicial (mais confiável que URL direta)
+        # Navegue para a página inicial para garantir contexto de sessão adequado
         await page.goto("https://esaj.tjce.jus.br/cpopg/open.do", wait_until="domcontentloaded")
         await page.wait_for_load_state("networkidle", timeout=10000)
         
@@ -120,13 +120,13 @@ async def baixar_pdf_processo(page, numero_processo, browser):
         pdf_url = "https://esaj.tjce.jus.br" + pdf_path
         
         # Baixar PDF
-        os.makedirs("data/decisoes", exist_ok=True)
+        os.makedirs("data/notebook1/decisoes", exist_ok=True)
         context = browser.contexts[0]
         response = await context.request.get(pdf_url)
         
         if response.ok:
             pdf_bytes = await response.body()
-            filename = f"data/decisoes/{numero_processo}.pdf"
+            filename = f"data/notebook1/decisoes/{numero_processo}.pdf"
             with open(filename, "wb") as f:
                 f.write(pdf_bytes)
             print(f"    PDF baixado ({len(pdf_bytes)} bytes)")
@@ -177,12 +177,12 @@ async def executar_scraping():
                     else:
                         falhas += 1
                     
-                    # Pausa entre requisições
+                    # Aguarde antes da próxima requisição para evitar sobrecarga
                     await asyncio.sleep(0.5)
                     
                 except Exception as e:
                     if "closed" in str(e).lower():
-                        print("\n✗ Browser fechado")
+                        print("\nBrowser foi fechado")
                         break
                     falhas += 1
                     print(f"   Erro: {str(e)}")

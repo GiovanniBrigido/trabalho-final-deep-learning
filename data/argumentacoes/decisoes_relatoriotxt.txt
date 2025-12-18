@@ -1,0 +1,21 @@
+BoxPlot BERT
+
+mean = em média os processos tiveram uma avaliação rigorosa (mean = 1.293883), com casos outliers de (std = 0.934650), 75% sendo rigorosos, com mínimo de 1 (rigoroso) e máximo de 5 (empática )
+- Colocar quantidades de cada um aqui também
+
+Para o modelo BERT nós não tivemos muita variação
+
+8.8 Gerando analise entre resultados
+Obs: Gráfico em cima e tabela abaixo
+# == BERT ==
+A análise do modelo BERT não obteve resultados razoáveis, a percepção era que: para processos procedentes, tivéssemos mais classificações EMPATICAS, TECNICAS e mnoes RIGOROSAS, enquanto que para Improcedentes, tivéssemos mais RIGOSOSAS e TECNICAS e menos EMPATICAS. A distribuição foi feita da seguinte forma:
+
+""
+    Mapeamento simples p/ ficar comparável com LLM:
+    1-2 -> RIGOROSA
+    3   -> TECNICA
+    4-5 -> EMPATICA
+""
+
+# == Mistral ==
+A captura de sentimento dos processos procedentes f

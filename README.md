@@ -151,7 +151,7 @@ Ao final da execução:
 
 - Todos os dados tratados, tabelas e gráficos estarão disponíveis em:
   ```text
-  data/notebook2/imgs/
+  data/notebook2/
   ```
 
 ---
